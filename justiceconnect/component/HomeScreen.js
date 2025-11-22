@@ -1,8 +1,17 @@
-// HomeScreen.js
+// component/HomeScreen.js
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import the hook
 
 export default function HomeScreen() {
+  // Initialize navigation object
+  const navigation = useNavigation();
+
+  const handleGetStarted = () => {
+    // Navigate to the screen named 'LoginSignup' defined in App.js
+    navigation.navigate('LoginSignup');
+  };
+
   return (
     <View style={styles.container}>
       <Image
@@ -16,7 +25,8 @@ export default function HomeScreen() {
         Your smart link to justice.{"\n"}“Smart answers. Stronger decisions.”
       </Text>
 
-      <TouchableOpacity style={styles.button}>
+      {/* Attach the navigation handler to the button */}
+      <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
     </View>
@@ -24,6 +34,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  // (Your existing styles here remain unchanged)
   container: {
     flex:1,
     backgroundColor: '#EAF0FA',
