@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "../firebase/firebase";
 import {
   View,
   Text,
@@ -10,14 +12,7 @@ import {
   StatusBar,
   ScrollView,
   KeyboardAvoidingView,
-  Animated,
 } from "react-native";
-import { useNavigation, useRoute } from "@react-navigation/native";
-import {
-  auth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "../firebase/firebase";
 
 export default function AuthScreen() {
   const navigation = useNavigation();
@@ -33,64 +28,85 @@ export default function AuthScreen() {
   // Confirm password toggle
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Tooltip animation
-  const [tooltipText, setTooltipText] = useState("");
-  const [tooltipVisible, setTooltipVisible] = useState(false);
-  const tooltipAnim = useState(new Animated.Value(0))[0];
+  // Error messages per field
+  const [errorMessage, setErrorMessage] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-  const showTooltip = (message) => {
-    setTooltipText(message);
-    setTooltipVisible(true);
-    Animated.timing(tooltipAnim, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-
-    setTimeout(() => {
-      Animated.timing(tooltipAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start(() => setTooltipVisible(false));
-    }, 2200);
-  };
+  // Email & phone validation
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePhone = (phone) => /^\d{10,15}$/.test(phone);
 
   // Signup
   const handleSignup = async () => {
-    if (!username || !email || !password || !confirmPassword) {
-      showTooltip("All fields are required");
-      return;
+    let hasError = false;
+    let errors = { username: "", email: "", password: "", confirmPassword: "" };
+
+    if (!username) {
+      errors.username = "Username required";
+      hasError = true;
     }
-    if (password.length < 6) {
-      showTooltip("Password must be at least 6 characters");
-      return;
+
+    if (!email) {
+      errors.email = "Email or phone required";
+      hasError = true;
+    } else if (!validateEmail(email) && !validatePhone(email)) {
+      errors.email = "Enter valid email or phone number";
+      hasError = true;
     }
-    if (password !== confirmPassword) {
-      showTooltip("Passwords do not match");
-      return;
+
+    if (!password) {
+      errors.password = "Password required";
+      hasError = true;
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters";
+      hasError = true;
     }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = "Confirm password required";
+      hasError = true;
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+      hasError = true;
+    }
+
+    setErrorMessage(errors);
+    if (hasError) return;
 
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       navigation.replace("Home");
-    } catch (error) {
-      showTooltip(error.message);
+    } catch (err) {
+      setErrorMessage({ ...errors, email: err.message });
     }
   };
 
   // Login
   const handleLogin = async () => {
-    if (!username || !password) {
-      showTooltip("Enter both fields");
-      return;
+    let errors = { username: "", email: "", password: "", confirmPassword: "" };
+    let hasError = false;
+
+    if (!username) {
+      errors.username = "Username required";
+      hasError = true;
     }
+    if (!password) {
+      errors.password = "Password required";
+      hasError = true;
+    }
+
+    setErrorMessage(errors);
+    if (hasError) return;
 
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigation.replace("Home");
-    } catch (error) {
-      showTooltip("Invalid username or password");
+    } catch (err) {
+      setErrorMessage({ ...errors, password: "Invalid username or password" });
     }
   };
 
@@ -105,10 +121,7 @@ export default function AuthScreen() {
       >
         <View style={styles.container}>
           {/* Back Button */}
-          <TouchableOpacity
-            style={styles.backBtn}
-            onPress={() => navigation.goBack()}
-          >
+          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Text style={styles.backText}>{"<"}</Text>
           </TouchableOpacity>
 
@@ -124,7 +137,7 @@ export default function AuthScreen() {
             {mode === "signup" ? "Register" : "Welcome"}
           </Text>
 
-          {/* SIGNUP */}
+          {/* ---------- SIGNUP ---------- */}
           {mode === "signup" && (
             <>
               <Text style={styles.label}>Username:</Text>
@@ -133,13 +146,19 @@ export default function AuthScreen() {
                 value={username}
                 onChangeText={setUsername}
               />
+              {errorMessage.username ? (
+                <Text style={styles.errorText}>{errorMessage.username}</Text>
+              ) : null}
 
-              <Text style={styles.label}>Email:</Text>
+              <Text style={styles.label}>Email / Phone:</Text>
               <TextInput
                 style={styles.input}
                 value={email}
                 onChangeText={setEmail}
               />
+              {errorMessage.email ? (
+                <Text style={styles.errorText}>{errorMessage.email}</Text>
+              ) : null}
 
               <Text style={styles.label}>Password:</Text>
               <TextInput
@@ -148,6 +167,9 @@ export default function AuthScreen() {
                 value={password}
                 onChangeText={setPassword}
               />
+              {errorMessage.password ? (
+                <Text style={styles.errorText}>{errorMessage.password}</Text>
+              ) : null}
 
               <Text style={styles.label}>Confirm Password:</Text>
               <View style={styles.passwordContainer}>
@@ -166,11 +188,11 @@ export default function AuthScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+              {errorMessage.confirmPassword ? (
+                <Text style={styles.errorText}>{errorMessage.confirmPassword}</Text>
+              ) : null}
 
-              <TouchableOpacity
-                style={styles.mainButton}
-                onPress={handleSignup}
-              >
+              <TouchableOpacity style={styles.mainButton} onPress={handleSignup}>
                 <Text style={styles.mainButtonText}>SIGN UP</Text>
               </TouchableOpacity>
 
@@ -192,7 +214,7 @@ export default function AuthScreen() {
             </>
           )}
 
-          {/* LOGIN */}
+          {/* ---------- LOGIN ---------- */}
           {mode === "login" && (
             <>
               <Text style={styles.label}>Username:</Text>
@@ -201,6 +223,9 @@ export default function AuthScreen() {
                 value={username}
                 onChangeText={setUsername}
               />
+              {errorMessage.username ? (
+                <Text style={styles.errorText}>{errorMessage.username}</Text>
+              ) : null}
 
               <View style={styles.passwordRow}>
                 <Text style={styles.label}>Password:</Text>
@@ -213,6 +238,9 @@ export default function AuthScreen() {
                 value={password}
                 onChangeText={setPassword}
               />
+              {errorMessage.password ? (
+                <Text style={styles.errorText}>{errorMessage.password}</Text>
+              ) : null}
 
               <TouchableOpacity style={styles.mainButton} onPress={handleLogin}>
                 <Text style={styles.mainButtonText}>LOGIN</Text>
@@ -228,21 +256,12 @@ export default function AuthScreen() {
                 Don’t have an account?{" "}
                 <Text
                   style={styles.link}
-                  onPress={() =>
-                    navigation.replace("Auth", { mode: "signup" })
-                  }
+                  onPress={() => navigation.replace("Auth", { mode: "signup" })}
                 >
                   Sign Up
                 </Text>
               </Text>
             </>
-          )}
-
-          {/* Tooltip Bubble */}
-          {tooltipVisible && (
-            <Animated.View style={[styles.tooltip, { opacity: tooltipAnim }]}>
-              <Text style={styles.tooltipText}>{tooltipText}</Text>
-            </Animated.View>
           )}
         </View>
       </ScrollView>
@@ -251,17 +270,8 @@ export default function AuthScreen() {
 }
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    paddingBottom: 40,
-    backgroundColor: "#E9F3FF",
-  },
-  container: {
-    flex: 1,
-    backgroundColor: "#E9F3FF",
-    paddingHorizontal: 25,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 30,
-  },
+  scrollContainer: { flexGrow: 1, paddingBottom: 40, backgroundColor: "#E9F3FF" },
+  container: { flex: 1, backgroundColor: "#E9F3FF", paddingHorizontal: 25, paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 30 },
   backBtn: { marginBottom: 10 },
   backText: { fontSize: 24, color: "#0B3C6C" },
   logo: { width: 115, height: 115, alignSelf: "center", marginTop: 5, marginBottom: 10 },
@@ -281,17 +291,5 @@ const styles = StyleSheet.create({
   bottomText: { textAlign: "center", marginTop: 16, fontSize: 13, color: "#444", marginBottom: 20 },
   link: { color: "#0B3C6C", fontWeight: "bold" },
 
-  // Tooltip styles
-  tooltip: {
-    position: "absolute",
-    top: 20,
-    left: 25,
-    right: 25,
-    backgroundColor: "#ff4d4d",
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 8,
-    zIndex: 1000,
-  },
-  tooltipText: { color: "white", fontWeight: "600", fontSize: 14, textAlign: "center" },
+  errorText: { color: "red", fontSize: 12, marginTop: 2 },
 });
