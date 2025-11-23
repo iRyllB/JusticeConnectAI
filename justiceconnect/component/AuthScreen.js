@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -18,9 +18,12 @@ export default function AuthScreen() {
   const route = useRoute();
   const mode = route.params?.mode || "login";
 
+  // 👁 STATE FOR CONFIRM PASSWORD TOGGLE
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: "#E9F3FF" }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
@@ -28,6 +31,7 @@ export default function AuthScreen() {
         contentContainerStyle={styles.scrollContainer}
       >
         <View style={styles.container}>
+
           {/* Back Button */}
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
             <Text style={styles.backText}>{"<"}</Text>
@@ -54,14 +58,27 @@ export default function AuthScreen() {
               <Text style={styles.label}>Email:</Text>
               <TextInput style={styles.input} />
 
-              <Text style={styles.label}>Phone Number:</Text>
-              <TextInput style={styles.input} />
-
               <Text style={styles.label}>Password:</Text>
               <TextInput secureTextEntry style={styles.input} />
 
               <Text style={styles.label}>Confirm Password:</Text>
-              <TextInput secureTextEntry style={styles.input} />
+
+              {/* 🔐 Confirm Password with Eye Toggle */}
+              <View style={styles.passwordContainer}>
+                <TextInput
+                  secureTextEntry={!showConfirmPassword}
+                  style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                />
+
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  <Text style={styles.eyeText}>
+                    {showConfirmPassword ? "👁️" : "👁️‍🗨️"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
               <TouchableOpacity style={styles.mainButton}>
                 <Text style={styles.mainButtonText}>SIGN UP</Text>
@@ -119,6 +136,7 @@ export default function AuthScreen() {
               </Text>
             </>
           )}
+
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -128,7 +146,7 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    paddingBottom: 40, // so content doesn’t get cut
+    paddingBottom: 40,
     backgroundColor: "#E9F3FF",
   },
 
@@ -152,20 +170,20 @@ const styles = StyleSheet.create({
     height: 115,
     alignSelf: "center",
     marginTop: 5,
-    marginBottom: 8,
+    marginBottom: 10,
   },
 
   title: {
     fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 18,
     color: "#0B3C6C",
   },
 
   label: {
     fontSize: 14,
-    marginTop: 8,
+    marginTop: 10,
     marginBottom: 4,
     color: "#444",
   },
@@ -175,6 +193,21 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     paddingVertical: 12,
     paddingHorizontal: 12,
+    marginBottom: 4,
+  },
+
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 4,
+  },
+
+  eyeButton: {
+    paddingHorizontal: 10,
+  },
+
+  eyeText: {
+    fontSize: 20,
   },
 
   passwordRow: {
@@ -223,7 +256,7 @@ const styles = StyleSheet.create({
 
   bottomText: {
     textAlign: "center",
-    marginTop: 18,
+    marginTop: 16,
     fontSize: 13,
     color: "#444",
     marginBottom: 20,
