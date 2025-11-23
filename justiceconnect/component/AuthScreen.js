@@ -1,4 +1,3 @@
-// component/AuthScreen.js
 import React from "react";
 import {
   View,
@@ -9,6 +8,8 @@ import {
   StyleSheet,
   Platform,
   StatusBar,
+  ScrollView,
+  KeyboardAvoidingView,
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 
@@ -18,193 +19,216 @@ export default function AuthScreen() {
   const mode = route.params?.mode || "login";
 
   return (
-    <View style={styles.container}>
-      {/* Back Button */}
-      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-        <Text style={styles.backText}>{'<'}</Text>
-      </TouchableOpacity>
-
-      {/* Logo */}
-      <Image
-        source={require("../assets/mainlogo.png")}
-        style={styles.logo}
-        resizeMode="contain"
-      />
-
-      {/* Title */}
-      <Text style={styles.title}>
-        {mode === "signup" ? "Get Started" : "Welcome"}
-      </Text>
-
-      {/* ---------- SIGN UP SCREEN ---------- */}
-      {mode === "signup" && (
-        <>
-          <Text style={styles.label}>Username:</Text>
-          <TextInput style={styles.input} />
-
-          <Text style={styles.label}>Email:</Text>
-          <TextInput style={styles.input} />
-
-          <Text style={styles.label}>Phone:</Text>
-          <TextInput style={styles.input} />
-
-          <Text style={styles.label}>Password:</Text>
-          <TextInput secureTextEntry style={styles.input} />
-
-          <Text style={styles.label}>Confirm Password:</Text>
-          <TextInput secureTextEntry style={styles.input} />
-
-          <TouchableOpacity style={styles.mainButton}>
-            <Text style={styles.mainButtonText}>SIGN UP</Text>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContainer}
+      >
+        <View style={styles.container}>
+          {/* Back Button */}
+          <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+            <Text style={styles.backText}>{"<"}</Text>
           </TouchableOpacity>
 
-          <Text style={styles.orText}>OR</Text>
+          {/* Logo */}
+          <Image
+            source={require("../assets/mainlogo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
 
-          <TouchableOpacity style={styles.googleBtn}>
-            <Text style={styles.googleBtnText}>Continue with Google</Text>
-          </TouchableOpacity>
-
-          <Text style={styles.bottomText}>
-            Already have an account?{" "}
-            <Text
-              style={styles.link}
-              onPress={() => navigation.replace("Auth", { mode: "login" })}
-            >
-              Sign In
-            </Text>
+          {/* Title */}
+          <Text style={styles.title}>
+            {mode === "signup" ? "Register" : "Welcome"}
           </Text>
-        </>
-      )}
 
-      {/* ---------- LOGIN SCREEN ---------- */}
-      {mode === "login" && (
-        <>
-          <Text style={styles.label}>Username:</Text>
-          <TextInput style={styles.input} />
+          {/* ========== SIGN UP SCREEN ========== */}
+          {mode === "signup" && (
+            <>
+              <Text style={styles.label}>Username:</Text>
+              <TextInput style={styles.input} />
 
-          <View style={styles.passwordRow}>
-            <Text style={styles.label}>Password:</Text>
-            <TouchableOpacity>
-              <Text style={styles.forgotText}>Forgot?</Text>
-            </TouchableOpacity>
-          </View>
+              <Text style={styles.label}>Email:</Text>
+              <TextInput style={styles.input} />
 
-          <TextInput secureTextEntry style={styles.input} />
+              <Text style={styles.label}>Phone Number:</Text>
+              <TextInput style={styles.input} />
 
-          <TouchableOpacity style={styles.mainButton}>
-            <Text style={styles.mainButtonText}>LOGIN</Text>
-          </TouchableOpacity>
+              <Text style={styles.label}>Password:</Text>
+              <TextInput secureTextEntry style={styles.input} />
 
-          <Text style={styles.orText}>OR</Text>
+              <Text style={styles.label}>Confirm Password:</Text>
+              <TextInput secureTextEntry style={styles.input} />
 
-          <TouchableOpacity style={styles.googleBtn}>
-            <Text style={styles.googleBtnText}>Continue with Google</Text>
-          </TouchableOpacity>
+              <TouchableOpacity style={styles.mainButton}>
+                <Text style={styles.mainButtonText}>SIGN UP</Text>
+              </TouchableOpacity>
 
-          <Text style={styles.bottomText}>
-            Don’t have an account?{" "}
-            <Text
-              style={styles.link}
-              onPress={() => navigation.replace("Auth", { mode: "signup" })}
-            >
-              Sign Up
-            </Text>
-          </Text>
-        </>
-      )}
+              <Text style={styles.orText}>OR</Text>
 
-      {/* Spacer to prevent overlap with bottom nav bar */}
-      <View style={{ flex: 1 }} />
-    </View>
+              <TouchableOpacity style={styles.googleBtn}>
+                <Text style={styles.googleBtnText}>Continue with Google</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.bottomText}>
+                Already have an account?{" "}
+                <Text
+                  style={styles.link}
+                  onPress={() => navigation.replace("Auth", { mode: "login" })}
+                >
+                  Sign In
+                </Text>
+              </Text>
+            </>
+          )}
+
+          {/* ========== LOGIN SCREEN ========== */}
+          {mode === "login" && (
+            <>
+              <Text style={styles.label}>Username:</Text>
+              <TextInput style={styles.input} />
+
+              <View style={styles.passwordRow}>
+                <Text style={styles.label}>Password:</Text>
+                <Text style={styles.forgotText}>Forgot Password?</Text>
+              </View>
+
+              <TextInput secureTextEntry style={styles.input} />
+
+              <TouchableOpacity style={styles.mainButton}>
+                <Text style={styles.mainButtonText}>LOGIN</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.orText}>OR</Text>
+
+              <TouchableOpacity style={styles.googleBtn}>
+                <Text style={styles.googleBtnText}>Continue with Google</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.bottomText}>
+                Don’t have an account?{" "}
+                <Text
+                  style={styles.link}
+                  onPress={() => navigation.replace("Auth", { mode: "signup" })}
+                >
+                  Sign Up
+                </Text>
+              </Text>
+            </>
+          )}
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: 40, // so content doesn’t get cut
+    backgroundColor: "#E9F3FF",
+  },
+
   container: {
     flex: 1,
-    paddingHorizontal: 15,
-    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight : 20,
-    backgroundColor: "#F0F8FF",
-    justifyContent: "flex-start",
+    backgroundColor: "#E9F3FF",
+    paddingHorizontal: 25,
+    paddingTop: Platform.OS === "android" ? StatusBar.currentHeight + 10 : 30,
   },
+
   backBtn: {
-    marginBottom: 5,
-  },
-  backText: {
-    fontSize: 22,
-    color: "#0B3C6C",
-  },
-  logo: {
-    width: 120, // increased from 100
-    height: 120, // increased from 100
-    alignSelf: "center",
     marginBottom: 10,
   },
-  title: {
+  backText: {
     fontSize: 24,
     color: "#0B3C6C",
+  },
+
+  logo: {
+    width: 115,
+    height: 115,
+    alignSelf: "center",
+    marginTop: 5,
+    marginBottom: 8,
+  },
+
+  title: {
+    fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    color: "#0B3C6C",
   },
+
   label: {
-    fontSize: 13,
-    color: "#333",
+    fontSize: 14,
     marginTop: 8,
-    marginLeft: 3,
+    marginBottom: 4,
+    color: "#444",
   },
+
   input: {
-    backgroundColor: "#E5E7EB",
+    backgroundColor: "#DFE3EB",
     borderRadius: 6,
-    padding: 10,
-    marginTop: 3,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
   },
+
   passwordRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 8,
-    marginRight: 3,
   },
+
   forgotText: {
     color: "red",
-    fontSize: 11,
+    fontSize: 12,
+    marginTop: 2,
   },
+
   mainButton: {
     backgroundColor: "#0B3C6C",
-    padding: 12,
+    paddingVertical: 12,
     borderRadius: 10,
-    marginTop: 15,
+    marginTop: 18,
     alignItems: "center",
   },
+
   mainButtonText: {
-    color: "#fff",
+    color: "white",
     fontWeight: "bold",
     fontSize: 16,
   },
+
   orText: {
     textAlign: "center",
-    marginVertical: 8,
+    marginVertical: 14,
     color: "#333",
-    fontSize: 13,
   },
+
   googleBtn: {
-    flexDirection: "row",
     backgroundColor: "#0B3C6C",
-    padding: 12,
+    paddingVertical: 12,
     borderRadius: 10,
-    justifyContent: "center",
     alignItems: "center",
   },
+
   googleBtnText: {
-    color: "#fff",
-    fontSize: 14,
+    color: "white",
     fontWeight: "600",
   },
+
   bottomText: {
     textAlign: "center",
-    marginTop: 15,
+    marginTop: 18,
     fontSize: 13,
+    color: "#444",
+    marginBottom: 20,
   },
+
   link: {
     color: "#0B3C6C",
     fontWeight: "bold",
