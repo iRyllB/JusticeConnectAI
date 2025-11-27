@@ -7,10 +7,7 @@ export default async function handler(req, res) {
   }
 
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
-
-  if (!GROQ_API_KEY) {
-    return res.status(500).json({ error: "Missing GROQ_API_KEY" });
-  }
+  if (!GROQ_API_KEY) return res.status(500).json({ error: "Missing GROQ_API_KEY" });
 
   const { prompt, model = "gemma2-9b-it", max_output_tokens = 200 } = req.body;
 
@@ -27,9 +24,7 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      return res
-        .status(response.status)
-        .json({ error: "Groq API returned an error", details: data });
+      return res.status(response.status).json({ error: "Groq API returned error", details: data });
     }
 
     res.status(200).json({ output_text: data.output_text || "No response", raw: data });
