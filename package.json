@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "dev": "expo start --web",
-    "build": "expo build:web"
+    "build": "npx expo export --platform web"
   },
   "dependencies": {
     "@ai-sdk/groq": "^2.0.31",
