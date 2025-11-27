@@ -18,6 +18,11 @@
 
 3. In the mobile app, set `PROXY_URL` to the running proxy address (e.g., `http://192.168.x.x:3000/groq` if using a physical device).  Android emulator may use `10.0.2.2` as the host.
 
+4. Production (Vercel): If you deploy to Vercel, add a Serverless `api/groq.js` endpoint (it's already included under `api/groq.js`).
+
+	- Add `GROQ_API_KEY` to Vercel's project Environment Variables (Production).
+	- Set `PROXY_URL` to `https://<your-vercel-app>.vercel.app/api/groq` in production if you want the mobile/web app to call the Vercel proxy.
+
 4. Start the app as usual with:
 
 	```bash
